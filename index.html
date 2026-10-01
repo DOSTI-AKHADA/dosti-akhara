@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>TYG 56 — Help • Jobs • Tasks • Activities</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b12;color:#f4f7fb;font-family:Inter,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{border:0;cursor:pointer}
+.app{max-width:520px;margin:auto;min-height:100vh;background:#0d111a;padding-bottom:82px}
+header{position:sticky;top:0;z-index:10;background:rgba(13,17,26,.94);backdrop-filter:blur(14px);padding:16px;border-bottom:1px solid #202838}
+.logo{font-size:22px;font-weight:900}.logo span{color:#22d3ee}.sub{font-size:12px;color:#94a3b8;margin-top:3px}
+.screen{display:none;padding:16px}.screen.active{display:block}
+.hero{padding:20px;border-radius:22px;background:linear-gradient(135deg,#172033,#101722);border:1px solid #263247;margin-bottom:14px}
+.hero h1{margin:0 0 8px;font-size:27px}.hero p{color:#aab7c8;margin:0;line-height:1.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:#121925;border:1px solid #232f42;border-radius:18px;padding:15px}
+.card b{display:block;font-size:15px;margin-bottom:5px}.muted{color:#91a0b4;font-size:12px}.icon{font-size:25px;margin-bottom:8px}
+.btn{background:#22d3ee;color:#061018;padding:11px 14px;border-radius:12px;font-weight:800;margin-top:10px}.btn.secondary{background:#202b3d;color:#e8eef8}.btn.danger{background:#7f1d1d;color:white}
+.item{background:#111824;border:1px solid #243044;border-radius:16px;padding:14px;margin:10px 0}.item h3{margin:0 0 6px;font-size:16px}.tag{display:inline-block;background:#1c3040;color:#67e8f9;border-radius:20px;padding:5px 9px;font-size:11px;margin:3px 3px 3px 0}
+input,textarea,select{width:100%;background:#0b1018;color:#fff;border:1px solid #2a374c;border-radius:12px;padding:12px;margin:6px 0}textarea{min-height:90px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#0d121c;border-top:1px solid #263144;padding:7px 5px;z-index:20}
+.nav button{background:none;color:#8190a5;font-size:10px}.nav button.active{color:#22d3ee}.nav span{display:block;font-size:20px;margin-bottom:2px}
+.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.pill{background:#15283a;color:#67e8f9;padding:7px 10px;border-radius:20px;font-size:12px}
+.video{height:420px;border-radius:20px;background:#111827;display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:12px;border:1px solid #28354a;overflow:hidden}.video video{width:100%;height:100%;object-fit:cover}.video a{color:#67e8f9}
+.login{min-height:100vh;display:flex;align-items:center;padding:22px}.loginbox{width:100%;background:#111824;border:1px solid #263247;border-radius:24px;padding:22px}
+.notice{background:#172436;border-left:4px solid #22d3ee;padding:12px;border-radius:10px;font-size:12px;color:#b9c6d7;margin:10px 0}
+.adminbar{background:#172033;padding:12px;border-radius:14px;margin-bottom:12px}.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="loginbox">
+    <div class="logo">TYG 56 <span>•</span> Connect</div>
+    <p class="sub">Help • Jobs • Tasks • Activities</p>
+    <div class="notice">First version. Users can create an account; Admin uses the existing Firebase user account named <b>admin</b>.</div>
+    <input id="loginName" placeholder="Name / Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button class="btn" style="width:100%" onclick="login()">Login / Create account</button>
+    <div id="loginMsg" class="muted" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="app" class="app hide">
+<header><div class="topline"><div><div class="logo">TYG 56 <span>Connect</span></div><div class="sub">Learn • Grow • Guide</div></div><div class="pill" id="points">0 pts</div></div></header>
+
+<section id="home" class="screen active">
+  <div class="hero"><h1>Help. Work. Share. 🌍</h1><p>Useful local information, verified tasks and TYG 56 activities — all in one place.</p></div>
+  <div class="grid">
+    <div class="card"><div class="icon">🎯</div><b>Tasks</b><span class="muted">Find useful local tasks and submit proof.</span></div>
+    <div class="card"><div class="icon">💼</div><b>Jobs</b><span class="muted">Discover jobs shared by the community.</span></div>
+    <div class="card"><div class="icon">🎥</div><b>Activities</b><span class="muted">Scroll TYG 56 activity videos.</span></div>
+    <div class="card"><div class="icon">❤️</div><b>Help TYG 56</b><span class="muted">Support approved community activities.</span></div>
+  </div>
+  <div class="item"><h3>🎯 Featured Task</h3><p class="muted">Find a genuine job poster around you, photograph it and submit the information. Reward is given only after verification.</p><button class="btn" onclick="show('tasks')">View Tasks</button></div>
+</section>
+
+<section id="tasks" class="screen"><div class="topline"><h2>🎯 Tasks</h2><span class="pill">Verified rewards</span></div><div id="taskList"><div class="muted">Loading...</div></div></section>
+
+<section id="jobs" class="screen"><div class="topline"><h2>💼 Jobs</h2><button class="btn" style="margin:0" onclick="showJobForm()">+ Post</button></div><div id="jobForm" class="item hide"><input id="jobTitle" placeholder="Job title"><input id="jobArea" placeholder="Area / city"><textarea id="jobInfo" placeholder="Job details, contact or apply information"></textarea><button class="btn" onclick="postJob()">Submit for review</button></div><div id="jobList"><div class="muted">Loading...</div></div></section>
+
+<section id="feed" class="screen"><div class="topline"><h2>🎥 TYG 56 Feed</h2><span class="pill">Activities</span></div><div id="feedList"><div class="muted">Loading...</div></div></section>
+
+<section id="help" class="screen"><div class="topline"><h2>❤️ Help TYG 56</h2></div><div class="hero"><h1>Support the Mission</h1><p>Approved campaigns can be shown here. Every campaign should clearly state its purpose and transparent information.</p></div><div id="helpList"><div class="muted">Loading...</div></div></section>
+
+<section id="profile" class="screen"><h2>👤 Profile</h2><div class="item"><h3 id="profileName">—</h3><div class="muted" id="profileId">—</div><div class="pill" style="display:inline-block;margin-top:10px" id="profilePoints">0 pts</div></div><button class="btn secondary" onclick="logout()">Logout</button></section>
+
+<section id="admin" class="screen"><div class="adminbar"><b>👑 TYG 56 Admin Panel</b><div class="muted">Content and platform controls</div></div>
+<div class="grid">
+<div class="card"><b>🎯 Tasks</b><button class="btn" onclick="adminTask()">Create</button></div>
+<div class="card"><b>💼 Jobs</b><button class="btn" onclick="adminJob()">Add</button></div>
+<div class="card"><b>🎥 Videos</b><button class="btn" onclick="adminVideo()">Add URL</button></div>
+<div class="card"><b>❤️ Help</b><button class="btn" onclick="adminHelp()">Create</button></div>
+</div>
+<div id="adminForm" class="item hide"></div>
+<div class="item"><h3>Pending job reports</h3><div id="adminJobs"></div></div>
+</section>
+
+<nav class="nav" id="nav"><button onclick="show('home')" class="active"><span>🏠</span>Home</button><button onclick="show('tasks')"><span>🎯</span>Tasks</button><button onclick="show('jobs')"><span>💼</span>Jobs</button><button onclick="show('feed')"><span>🎥</span>Feed</button><button onclick="show('profile')"><span>👤</span>Profile</button></nav>
+</div>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyATjQZ0yY3UxpH1G101Re-R03jihaH62zo",authDomain:"dosti-akhada.firebaseapp.com",databaseURL:"https://dosti-akhada-default-rtdb.firebaseio.com",projectId:"dosti-akhada",storageBucket:"dosti-akhada.appspot.com",messagingSenderId:"212925127313",appId:"1:212925127313:web:c125cf1cc605f58765d30"};
+firebase.initializeApp(firebaseConfig);const db=firebase.database();
+let user=null, isAdmin=false;
+const key=s=>String(s||'').replace(/[.#$\\[\\]]/g,'_');
+function login(){const n=document.getElementById('loginName').value.trim(),p=document.getElementById('loginPass').value;if(!n||!p)return msg('Enter username and password.');const k=key(n);db.ref('users/'+k).once('value').then(s=>{if(s.exists()){if(s.val().password!==p)return msg('Incorrect password.');start(n,k,s.val())}else{db.ref('users/'+k).set({username:n,password:p,points:0,createdAt:Date.now()}).then(()=>start(n,k,{username:n,points:0}))}}).catch(e=>msg('Firebase error: '+e.message))}
+function msg(x){document.getElementById('loginMsg').innerText=x}
+function start(n,k,d){user={name:n,key:k};isAdmin=n.toLowerCase()==='admin';document.getElementById('login').classList.add('hide');document.getElementById('app').classList.remove('hide');document.getElementById('profileName').innerText=n;document.getElementById('profileId').innerText='ID: '+k;watchUser();loadAll();if(isAdmin){document.getElementById('nav').innerHTML+='<button onclick="show(\\'admin\\')"><span>⚙️</span>Admin</button>'}}
+function watchUser(){db.ref('users/'+user.key).on('value',s=>{const d=s.val()||{};const p=d.points||0;document.getElementById('points').innerText=p+' pts';document.getElementById('profilePoints').innerText=p+' pts'})}
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));const b=[...document.querySelectorAll('.nav button')].find(x=>x.getAttribute('onclick')&&x.getAttribute('onclick').includes("'"+id+"'"));if(b)b.classList.add('active')}
+function loadAll(){loadTasks();loadJobs();loadFeed();loadHelp()}
+function loadTasks(){db.ref('tasks').on('value',s=>{let h='';s.forEach(c=>{const d=c.val();if(d.status==='active')h+=`<div class="item"><h3>${esc(d.title)}</h3><p class="muted">${esc(d.description||'')}</p><span class="tag">Reward: ${d.reward||0} pts</span><button class="btn" onclick="submitTask('${c.key}')">Submit Task</button></div>`});document.getElementById('taskList').innerHTML=h||'<div class="muted">No tasks yet.</div>'})}
+function submitTask(id){const note=prompt('Paste photo link or write where you found the poster:');if(!note)return;db.ref('task_submissions').push({taskId:id,user:user.name,userKey:user.key,proof:note,status:'pending',time:Date.now()}).then(()=>alert('Submitted for Admin verification.'))}
+function loadJobs(){db.ref('jobs').on('value',s=>{let h='';s.forEach(c=>{const d=c.val();if(d.status==='approved')h+=`<div class="item"><h3>${esc(d.title)}</h3><span class="tag">📍 ${esc(d.area)}</span><p class="muted">${esc(d.info||'')}</p></div>`});document.getElementById('jobList').innerHTML=h||'<div class="muted">No approved jobs yet.</div>'})}
+function showJobForm(){document.getElementById('jobForm').classList.toggle('hide')}
+function postJob(){const title=jobTitle.value.trim(),area=jobArea.value.trim(),info=jobInfo.value.trim();if(!title||!area)return alert('Add title and area.');db.ref('jobs').push({title,area,info,status:'pending',postedBy:user.name,time:Date.now()}).then(()=>{alert('Job sent for review.');document.getElementById('jobForm').classList.add('hide')})}
+function loadFeed(){db.ref('videos').on('value',s=>{let h='';s.forEach(c=>{const d=c.val();if(d.status==='published')h+=`<div class="video">${d.url?`<video src="${esc(d.url)}" controls playsinline></video>`:`<div><b>${esc(d.title||'TYG 56 Activity')}</b><p class="muted">${esc(d.caption||'')}</p></div>`}</div>`});document.getElementById('feedList').innerHTML=h||'<div class="muted">No activities uploaded yet.</div>'})}
+function loadHelp(){db.ref('help_campaigns').on('value',s=>{let h='';s.forEach(c=>{const d=c.val();if(d.status==='active')h+=`<div class="item"><h3>❤️ ${esc(d.title)}</h3><p class="muted">${esc(d.description||'')}</p><span class="tag">${esc(d.purpose||'TYG 56')}</span></div>`});document.getElementById('helpList').innerHTML=h||'<div class="muted">No active campaign yet.</div>'})}
+function adminTask(){form(`<h3>Create Task</h3><input id="a1" placeholder="Task title"><textarea id="a2" placeholder="Task description"></textarea><input id="a3" type="number" placeholder="Reward points"><button class="btn" onclick="saveTask()">Publish</button>`)}
+function saveTask(){db.ref('tasks').push({title:a1.value,description:a2.value,reward:Number(a3.value)||0,status:'active',createdAt:Date.now()}).then(()=>{alert('Task created');hideForm()})}
+function adminJob(){form(`<h3>Add approved Job</h3><input id="a1" placeholder="Job title"><input id="a2" placeholder="Area"><textarea id="a3" placeholder="Details/contact"></textarea><button class="btn" onclick="saveJob()">Publish</button>`)}
+function saveJob(){db.ref('jobs').push({title:a1.value,area:a2.value,info:a3.value,status:'approved',postedBy:'admin',time:Date.now()}).then(()=>{alert('Job added');hideForm()})}
+function adminVideo(){form(`<h3>Add Activity Video</h3><input id="a1" placeholder="Video URL (direct .mp4 URL)"><input id="a2" placeholder="Title"><textarea id="a3" placeholder="Caption"></textarea><button class="btn" onclick="saveVideo()">Publish</button>`)}
+function saveVideo(){db.ref('videos').push({url:a1.value,title:a2.value,caption:a3.value,status:'published',createdAt:Date.now()}).then(()=>{alert('Video published');hideForm()})}
+function adminHelp(){form(`<h3>Create Help Campaign</h3><input id="a1" placeholder="Campaign title"><textarea id="a2" placeholder="Purpose / details"></textarea><input id="a3" placeholder="Purpose category"><button class="btn" onclick="saveHelp()">Publish</button>`)}
+function saveHelp(){db.ref('help_campaigns').push({title:a1.value,description:a2.value,purpose:a3.value,status:'active',createdAt:Date.now()}).then(()=>{alert('Campaign published');hideForm()})}
+function form(x){document.getElementById('adminForm').innerHTML=x;document.getElementById('adminForm').classList.remove('hide')}
+function hideForm(){document.getElementById('adminForm').classList.add('hide')}
+function logout(){location.reload()}
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+</script>
+</body></html>
