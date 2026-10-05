@@ -1,16 +1,16 @@
 {
-  "short_name": "دوستی اکھاڑہ",
-  "name": "دوستی اکھاڑہ - 12 Tehni Game",
+  "short_name": "TYG 56",
+  "name": "TYG 56",
   "icons": [
     {
-      "src": "file_00000000831c81fbb5b4a2253c1508dc.png",
-      "sizes": "512x512"
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
   "start_url": "./index.html",
-  "background_color": "#1a150e",
-  "theme_color": "#d4af37",
   "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
   "orientation": "portrait"
 }
-
