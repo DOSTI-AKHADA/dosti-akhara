@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f19">
 <title>TYG 56 — Help • Jobs • Tasks • Activities</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -112,4 +114,12 @@ function logout(){localStorage.removeItem('tyg56_session');location.replace(loca
 function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 window.addEventListener('load',()=>{if(location.hash&&document.getElementById(location.hash.slice(1)))show(location.hash.slice(1));restoreSession()});
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .catch(err => console.log('SW Reg Fail:', err));
+}
+</script>
+
 </body></html>
